@@ -5,23 +5,22 @@ import axios from 'axios';
 
 
 const Crud = () => {
-  type Catatan = {
+  type Buku = {
     id: number,
-    nama: string,
-    catatanku: string,
-    hobiku: string,
-    tanggal: string,
+    judul: string,
+    pengarang: string,
+    
   }
 
 
-  const [nama, setName] = useState('');
-  const [catatan, setCatatan] = useState('');
-  const [hobi, setHobi] = useState('');
-  const [data, setData] = useState<Catatan[]>([]);
-  const [selectedItem, setSelectedItem] = useState<Catatan | null>(null);
+  const [judul, setJudul] = useState('');
+  const [pengarang, setPengarang] = useState('');
+  
+  const [data, setData] = useState<Buku[]>([]);
+  const [selectedItem, setSelectedItem] = useState<Buku | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const openModal = (item: Catatan): void => {
+  const openModal = (item: Buku): void => {
     setSelectedItem(item);
     setModalVisible(true);
   }
@@ -32,18 +31,17 @@ const Crud = () => {
   }
 
   const handleButton = () => {
-    if (nama === '' || catatan === '' || hobi === '') {
+    if (judul === '' || pengarang === '') {
       Alert.alert('Error', 'Data harus lengkap!');
       return;
     }
 
     axios
-      .post('http://192.168.0.2/ThaniaPHP/add.php', { nama, catatan, hobi })
+      .post('http://192.168.0.2/ulanganThania/add.php', { judul, pengarang })
       .then((response) => {
         Alert.alert('DATA BERHASIL DISIMPAN', response.data.message);
-        setName('');
-        setCatatan('');
-        setHobi('');
+        setJudul('');
+        setPengarang('');
         fetchData();
       })
       .catch(() => {
@@ -54,7 +52,7 @@ const Crud = () => {
 
   const fetchData = () => {
     axios
-      .get('http://192.168.0.2/ThaniaPHP/get.php')
+      .get('http://192.168.0.2/ulanganThania/get.php')
       .then((response) => {
         if (Array.isArray(response.data)) {
           setData(response.data)
@@ -70,11 +68,10 @@ const Crud = () => {
   const handleUpdate = () => {
     if (selectedItem) {
       axios
-      .post('http://192.168.0.2/ThaniaPHP/update.php', {
+      .post('http://192.168.0.2/ulanganThania/update.php', {
         id: selectedItem.id,
-        nama: selectedItem.nama,
-        catatan: selectedItem.catatanku,
-        hobi: selectedItem.hobiku
+        judul: selectedItem.judul,
+        pengarang: selectedItem.pengarang,
       })
       .then(() => {
         Alert.alert('SUKSES', 'Catatan berhasil diupdate!')
@@ -99,7 +96,7 @@ const Crud = () => {
         style: 'destructive',
         onPress: () => {
           axios
-          .post('http://192.168.0.2/ThaniaPHP/delete.php', {id})
+          .post('http://192.168.0.2/ulanganThania/delete.php', {id})
           .then(() => {
             Alert.alert('Catatan berhasil dihapus!')
             fetchData()
@@ -120,12 +117,11 @@ const Crud = () => {
     <ScrollView>
       <View>
 
-        <Text style={styles.title}> My Note </Text>
-        <TextInput style={styles.inputNama} placeholder='Masukan namamu' value={nama} onChangeText={setName} />
-        <TextInput style={styles.inputCatatan} placeholder='Masukan catatanmu' value={catatan} onChangeText={setCatatan} />
-        <TextInput style={styles.inputNama} placeholder='Masukan hobimu' value={hobi} onChangeText={setHobi} />
+        <Text style={styles.title}> Daftar Buku </Text>
+        <TextInput style={styles.inputJudul} placeholder='Judul Buku' value={judul} onChangeText={setJudul} />
+        <TextInput style={styles.inputPengarang} placeholder='Nama Pengarang' value={pengarang} onChangeText={setPengarang} />
         <TouchableOpacity style={styles.simpan} onPress={handleButton}>
-          <Text style={styles.save}> SAVE </Text>
+          <Text style={styles.save}> Tambah Buku </Text>
         </TouchableOpacity>
 
 
@@ -136,10 +132,8 @@ const Crud = () => {
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => openModal(item)}>
               <View style={styles.card}>
-                <Text>{item.nama}</Text>
-                <Text>{item.catatanku}</Text>
-                <Text>{item.hobiku}</Text>
-                <Text>{item.tanggal}</Text>
+                <Text style={styles.judul}>{item.judul}</Text>
+                <Text style={styles.pengarang}>{item.pengarang}</Text>
 
                 <TouchableOpacity style={styles.buttonDelete} onPress={() => handleDelete(item.id)}>
                   <Text style={styles.textButtonDelete}>Hapus</Text>
@@ -160,21 +154,15 @@ const Crud = () => {
                 <>
                   <TextInput
                   style={styles.editNama}
-                  value={selectedItem.nama}
+                  value={selectedItem.judul}
                   onChangeText={(text) =>
-                    setSelectedItem({... selectedItem, nama:text})
+                    setSelectedItem({... selectedItem, judul:text})
                   }/>
                   <TextInput
                   style={styles.editCatatan}
-                  value={selectedItem.catatanku}
+                  value={selectedItem.pengarang}
                   onChangeText={(text) =>
-                    setSelectedItem({... selectedItem, catatanku:text})
-                  }/>
-                  <TextInput
-                  style={styles.editNama}
-                  value={selectedItem.hobiku}
-                  onChangeText={(text) =>
-                    setSelectedItem({... selectedItem, hobiku:text})
+                    setSelectedItem({... selectedItem, pengarang:text})
                   }/>
                   <Button title='UPDATE' onPress={handleUpdate}/>
                 </>
@@ -202,40 +190,46 @@ const styles = StyleSheet.create({
     marginTop: 50,
     textAlign: 'center',
     fontSize: 30,
+    fontWeight: 900,
+    position: 'absolute',
+    right: 75
   },
-  inputNama: {
-    top: 70,
-    width: 300,
+  inputJudul: {
+    top: 150,
+    width: 440,
     alignSelf: 'center',
     borderWidth: 1,
     marginVertical: 5,
-    borderRadius: 15,
+    borderRadius: 6,
   },
-  inputCatatan: {
-    top: 70,
-    width: 300,
-    height: 130,
+  inputPengarang: {
+    top: 152,
+    width: 440,
+    height: 48,
     alignSelf: 'center',
     borderWidth: 1,
     marginVertical: 5,
-    borderRadius: 15,
+    borderRadius: 6,
     textAlignVertical: 'top'
   },
   simpan: {
-    top: 100,
-    backgroundColor: '#66cdaa',
-    width: 120,
+    top: 170,
+    backgroundColor: '#69adea',
+    width: 440,
     alignSelf: 'center',
-    height: 30,
+    height: 50,
     borderRadius: 7,
     marginTop: 0,
   },
   save: {
     textAlign: 'center',
-    fontWeight: 'bold'
+    fontWeight: 900,
+    top: 11,
+    fontSize: 16,
+    color: 'white'
   },
   flatlist: {
-    marginTop: 140,
+    marginTop: 180,
     marginLeft: 10,
   },
   modalOverlay: {
@@ -255,14 +249,14 @@ const styles = StyleSheet.create({
     right: 10,
   },
   card: {
-    padding: 9,
-    marginVertical: 9,
-    marginHorizontal: 4,
+    padding: 10,
+    marginVertical: 11,
+    marginHorizontal: 10,
     borderRadius: 12,
-    borderWidth: 1,
     marginTop: 10,
-    width: 450,
-    height: 112
+    width: 440,
+    height: 112,
+    backgroundColor: '#d1d1d1'
   },
   editNama: {
     top: 1,
@@ -284,20 +278,31 @@ const styles = StyleSheet.create({
   },
   buttonDelete: {
     backgroundColor: '#e60000',
-    paddingVertical: 15,
+    paddingVertical: 20,
     width: 100,
-    right: -322,
+    right: -318,
     height: 10,
-    top: -80,
+    top: -60,
     borderRadius: 7,
     marginTop: 20,
   },
   textButtonDelete: {
     color: '#ffffff',
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: 'bold',
     position: 'absolute',
     top: 5,
     left: 27
+  },
+  judul: {
+    fontSize: 24,
+    fontWeight: 900,
+    top: 9,
+    left: 29
+  },
+  pengarang: {
+    fontSize: 18,
+    top: 9,
+    left: 29
   }
 })

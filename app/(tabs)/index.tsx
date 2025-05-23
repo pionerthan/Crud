@@ -4,6 +4,7 @@ import Crud from '@/components/Crud';
 import Save from '@/components/Save';
 import UI1 from '@/components/UI1';
 import UI2 from '@/components/UI2';
+import Ulangan from '@/components/ulanganThania';
 
 const App = () => {
   return(
